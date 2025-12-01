@@ -47,11 +47,15 @@ body{
 
 /* Main area */
 .main{flex:1; display:flex; flex-direction:column;}
-.title{padding:28px; background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent); border-bottom:1px solid rgba(255,255,255,0.03);} 
+.title{padding:28px; background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent); border-bottom:1px solid rgba(255,255,255,0.03);}
 .title-svg{width:100%; height:120px; border-radius:8px; overflow:visible}
 .content{padding:24px; display:flex; flex-direction:column; gap:16px; flex:1;}
 
 /* Stream area */
+/* Use normal wrapping so the visible string width is determined by container/screen.
+   Long sequences will wrap automatically at the end of the viewport/container.
+   No newline/CR/TAB chars are stored; spaces are the only whitespace.
+*/
 .stream-area{
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border-radius:10px;
@@ -62,7 +66,9 @@ body{
   font-size:20px;
   line-height:1.6;
   color:#e6eef8;
-  white-space:pre-wrap;
+  white-space: normal;        /* allow automatic wrapping */
+  word-break: break-word;     /* wrap words when necessary */
+  overflow-wrap: anywhere;    /* help break long strings */
   border:1px solid rgba(255,255,255,0.02);
 }
 

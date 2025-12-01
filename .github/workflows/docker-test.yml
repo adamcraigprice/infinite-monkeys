@@ -1,0 +1,69 @@
+name: CI - Docker Build & Smoke Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=im-ci-test:${{ github.run_id }}
+          docker build -t ${IMAGE_NAME} .
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+
+      - name: Run container
+        run: |
+          IMAGE_NAME=${{ env.IMAGE_NAME }}
+          # Run container in detached mode and map port 3000
+          docker run -d --rm --name im-ci-test -p 3000:3000 ${IMAGE_NAME}
+          # Give the container a few seconds to start
+          echo "Started container from ${IMAGE_NAME}"
+
+      - name: Wait for HTTP service
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sSf http://localhost:3000/health >/dev/null 2>&1; then
+              echo "Service is up"
+              exit 0
+            fi
+            echo "Waiting for service... ($i)"
+            sleep 2
+          done
+          echo "Service did not become healthy in time" >&2
+          docker logs im-ci-test || true
+          exit 1
+
+      - name: Smoke test root page
+        run: |
+          set -e
+          curl -sSf http://localhost:3000/ -o /tmp/root.html
+          # basic sanity check: page should contain 'Infinite Monkeys'
+          if ! grep -q "Infinite Monkeys" /tmp/root.html; then
+            echo "Root page does not contain expected title" >&2
+            docker logs im-ci-test || true
+            exit 1
+          fi
+          echo "Root page smoke test passed."
+
+      - name: Stop container (if still running)
+        if: always()
+        run: |
+          docker ps -a --filter "name=im-ci-test" --format '{{.ID}}' | xargs --no-run-if-empty docker stop || true
+
+      - name: Cleanup images
+        if: always()
+        run: |
+          docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | grep im-ci-test || true
