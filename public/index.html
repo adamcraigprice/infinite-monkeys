@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Infinite Monkeys</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <h3>Settings</h3>
+      <div>
+        <label>Show last X characters (global):</label>
+        <div id="displayLimit" style="font-weight:700; padding-top:8px;">—</div>
+      </div>
+      <hr/>
+      <div>
+        <label>Connection:</label>
+        <span id="connStatus">disconnected</span>
+      </div>
+      <hr/>
+      <small>All visitors see the same live string. X is configured server-side.</small>
+    </aside>
+
+    <main class="main">
+      <header class="title">
+        <svg viewBox="0 0 1200 200" class="title-svg" aria-hidden>
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="#ff9a9e"/>
+              <stop offset="50%" stop-color="#fad0c4"/>
+              <stop offset="100%" stop-color="#fad0c4"/>
+            </linearGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity="0.25"/>
+            </filter>
+          </defs>
+          <rect width="100%" height="100%" rx="20" fill="url(#g1)"/>
+          <g transform="translate(60,120)">
+            <text font-family="Verdana, Geneva, sans-serif" font-size="80" fill="#2b2b2b" filter="url(#shadow)">
+              Infinite Monkeys
+            </text>
+            <text x="820" y="-10" font-size="64" font-family="serif" fill="#5b3a29">🐒</text>
+          </g>
+        </svg>
+      </header>
+
+      <section class="content">
+        <div class="stream-area" id="streamArea" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+</html>
